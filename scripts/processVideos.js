@@ -30,7 +30,7 @@ export default async function processVideo(input, output,
   const dirname = path.dirname(input);
   const basename = allowedExtensions.reduce((val, cur) => path.basename(val, cur), input);
   const srt = basename + '.srt';
-  const subs = parser.fromSrt(await fs.readFile(path.join(dirname, srt), 'utf-8')).slice(0, 120);
+  const subs = parser.fromSrt(await fs.readFile(path.join(dirname, srt), 'utf-8'));
 
   console.info(chalk.green('Processing'), path.basename(input) + chalk.gray('...'));
 
