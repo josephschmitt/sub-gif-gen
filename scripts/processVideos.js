@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import fs from 'fs-extra';
 import klaw from 'klaw-promise';
 import minimist from 'minimist';
+import moment from 'moment';
 import path from 'path';
 import parser from 'subtitles-parser';
 
@@ -24,10 +25,12 @@ import convertToGif from './convertToGif.js';
  */
 export default async function processVideo(input, output,
     {skipExisting, offset, allowedExtensions}) {
+  const t1 = new Date();
+
   const dirname = path.dirname(input);
   const basename = allowedExtensions.reduce((val, cur) => path.basename(val, cur), input);
   const srt = basename + '.srt';
-  const subs = parser.fromSrt(await fs.readFile(path.join(dirname, srt), 'utf-8'));
+  const subs = parser.fromSrt(await fs.readFile(path.join(dirname, srt), 'utf-8')).slice(0, 120);
 
   console.info(chalk.green('Processing'), path.basename(input) + chalk.gray('...'));
 
@@ -58,6 +61,9 @@ export default async function processVideo(input, output,
     console.info(`  ${chalk.cyan(startTimeFmt) + chalk.gray('-') + chalk.cyan(endTimeFmt)}:`,
         text.replace(/\n/g, ' '), chalk.gray(`[${size.toFixed(2)}MB]`));
   }
+
+  console.info('Finished generating ' + chalk.green(subs.length) + ' gifs in ' +
+      moment().from(t1, true) + '\n');
 }
 
 /**
