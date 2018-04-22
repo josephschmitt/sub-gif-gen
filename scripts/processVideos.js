@@ -11,9 +11,6 @@ import {convertTimeToTimestamp} from '../lib/converttime.js';
 
 import convertToGif from './convertToGif.js';
 
-const SUPPORTED_MOVIES = ['mkv'];
-const SUPPORTED_SUBS = ['srt'];
-
 /**
  * Converts a single video into multiple animated gifs, each gif mapping to a section of the video's
  * subtitles.
@@ -24,9 +21,10 @@ const SUPPORTED_SUBS = ['srt'];
  * @param {Boolean} options.skipExisting -- If true, will skip a section if the output gif exists
  * @param {Number} options.offset -- Padding to apply to the start/end points of the clip section
  */
-export default async function processVideo(input, output, {skipExisting, offset}) {
+export default async function processVideo(input, output,
+    {skipExisting, offset, allowedExtensions}) {
   const dirname = path.dirname(input);
-  const basename = path.basename(input, '.mkv');
+  const basename = allowedExtensions.reduce((val, cur) => path.basename(val, cur), input);
   const srt = basename + '.srt';
   const subs = parser.fromSrt(await fs.readFile(path.join(dirname, srt), 'utf-8'));
 
@@ -67,23 +65,37 @@ export default async function processVideo(input, output, {skipExisting, offset}
  *   ./processVideos.js --dir path/to/videos --skipExisting true --offset 1 -- path/to/gifs
  */
 if (require && require.main === module) {
-  const {dir, '--': [output], skipExisting, offset} = minimist(process.argv.slice(2), {
-    string: ['dir', 'skipExisting', 'offset'],
+  const {
+    dir,
+    '--': [output],
+    skipExisting,
+    offset,
+    extensions
+  } = minimist(process.argv.slice(2), {
+    string: ['dir', 'offset', 'extensions'],
+    boolean: ['skipExisting'],
     alias: {
       dir: 'd',
       skipExisting: 's',
       offset: 'o',
+      extensions: 'x',
+    },
+    'default': {
+      extensions: '.mkv,.mp4',
     },
     unknown: false,
     '--': true,
   });
 
-  klaw(dir).then(async (videos) => {
-    videos = videos.map(({path}) => path).filter((vid) => /\.mkv$/.test(vid))
+  const allowedExtensions = extensions.split(',');
 
+  klaw(dir, {
+    filter: (pth) => allowedExtensions.some((ext) => pth.endsWith(ext)),
+  }).then(async ([dir, ...videos]) => {
     try {
       for (const {path: vid} of videos) {
-        await processVideo(path.resolve(process.cwd(), vid), output, {skipExisting, offset});
+        await processVideo(path.resolve(process.cwd(), vid), output,
+          {skipExisting, offset, allowedExtensions});
       }
     } catch (e) {
       console.error(e);

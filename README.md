@@ -50,9 +50,9 @@ env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -o path/to/gif
 ## CLI Flags
 
 ### Required
-- `-d`, `--dir`: Directory containing your video files. Currently limited to `.mkv` files. Also
-  currently limited to only reading from external `.srt` files for subtitles. The `.srt` file must
-  be named the same as the `.mkv` source, but with the filename set to `.srt`.
+- `-d`, `--dir`: Directory containing your video files. Currently limited to only reading from
+  external `.srt` files for subtitles. The `.srt` file must be named the same as the input source,
+  but with the filename set to `.srt`.
 
 ### Optional
 - `-s`, `--skipExisting`: Will skip processing if it finds a gif or annotated gif file already
@@ -60,6 +60,8 @@ env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -o path/to/gif
 - `-o`, `--offset`: Amount of time (in seconds) to offset the gif. By defaul this is zero, which
   means the gif is cropped to the exact timecode of the subtitle. You can use this value to extend
   the time of the clip by adding some time before and after the timecode from the subtitle file.
+- `-x`, `--extensions`: Allowed extensions for the input file. Will use these to filter the input
+  directory for videos. Defaults to `.mkv,.mp4`.
 
 Use the `--` flag to denote the end of the options and then pass the directory to output your gifs.
 The gifs will be output in a directory named by input file. The gifs are named the same as the mkv
