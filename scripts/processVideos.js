@@ -101,10 +101,15 @@ if (require && require.main === module) {
     filter: (pth) => allowedExtensions.some((ext) => pth.endsWith(ext)),
   }).then(async ([dir, ...videos]) => {
     try {
+      const t1 = new Date();
+
       for (const {path: vid} of videos) {
         await processVideo(path.resolve(process.cwd(), vid), output,
           {skipExisting, offset, allowedExtensions});
       }
+
+      console.info('Finished processing ' + chalk.green(videos.length) + ' videos in ' +
+        moment().from(t1, true) + '\n');
     } catch (e) {
       console.error(chalk.red(e));
       process.exit(1);
