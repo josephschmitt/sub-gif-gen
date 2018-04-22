@@ -26,10 +26,12 @@ const fillOpt = [
 export default async function applySubtitles(input, output, text) {
   await fs.ensureFile(output);
 
+  text = text.replace('\'', '\\\'').replace('\n', '\\n');
+
   return imagemagick.exec(`convert ${input} ` +
     `${flatten(options).join(' ')} ` +
-    `${flatten(strokeOpt).join(' ')} '"${text}"' ` +
-    `${flatten(fillOpt).join(' ')} '"${text}"' ` +
+    `${flatten(strokeOpt).join(' ')} "${text}" ` +
+    `${flatten(fillOpt).join(' ')} "${text}" ` +
     output
   );
 }
