@@ -20,6 +20,7 @@ import convertToGif from './convertToGif.js';
  * @param {Object} options
  * @param {Boolean} options.skipExisting -- If true, will skip a section if the output gif exists
  * @param {Number} options.offset -- Padding to apply to the start/end points of the clip section
+ * @param {Array<String>} allowedExtensions -- Array of extensions allowed for input videos
  */
 export default async function processVideo(input, output,
     {skipExisting, offset, allowedExtensions}) {
