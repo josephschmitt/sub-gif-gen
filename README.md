@@ -64,5 +64,5 @@ env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -o path/to/gif
   directory for videos. Defaults to `.mkv,.mp4`.
 
 Use the `--` flag to denote the end of the options and then pass the directory to output your gifs.
-The gifs will be output in a directory named by input file. The gifs are named the same as the mkv
-source file plus the star-time in miliseconds of the clip.
+The gifs will be output to a directory of the same name as the input file. The gifs are named the
+same as the input source file, plus the start-time in miliseconds of the clip.
