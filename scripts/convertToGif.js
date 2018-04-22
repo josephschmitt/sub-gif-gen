@@ -73,9 +73,9 @@ if (require && require.main === module) {
   });
 
   const resolvedOutput = path.resolve(process.cwd(), output);
-  const outputFile = path.join(resolvedOutput, path.basename(src, '.mkv') + '.gif');
+  const outputFile = path.join(resolvedOutput, path.basename(input, '.mkv') + '.gif');
 
-  convertToGif([input, palette], outputFile, starttime, duration, text).catch((e) => {
+  convertToGif(input, outputFile, starttime, duration, text).catch((e) => {
     console.error(e);
     process.exit(1);
   });
