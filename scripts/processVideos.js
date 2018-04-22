@@ -50,10 +50,11 @@ export default async function processVideo(input, output,
     const gifOutput = await convertToGif(input, outputFile, seekTo, duration, text);
     const size = (await fs.stat(gifOutput)).size / 1000000;
 
-    const startTimeFmt = startTime.replace(',', '.').split(':').slice(1).join(':');
-    const endTimeFmt = endTime.replace(',', '.').split(':').slice(1).join(':');
+    // Format times by removing commas and re-moving leading hour mark until necessary
+    const startTimeFmt = startTime.replace(',', '.').replace('00:', '');
+    const endTimeFmt = endTime.replace(',', '.').replace('00:', '');
 
-    console.info(`  ${chalk.cyan(startTimeFmt)} - ${chalk.cyan(endTimeFmt)}:`,
+    console.info(`  ${chalk.cyan(startTimeFmt) + chalk.gray('-') + chalk.cyan(endTimeFmt)}:`,
         text.replace(/\n/g, ' '), chalk.gray(`[${size.toFixed(2)}MB]`));
   }
 }
@@ -98,7 +99,7 @@ if (require && require.main === module) {
           {skipExisting, offset, allowedExtensions});
       }
     } catch (e) {
-      console.error(e);
+      console.error(chalk.red(e));
       process.exit(1);
     }
   });
