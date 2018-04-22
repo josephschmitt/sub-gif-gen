@@ -16,7 +16,7 @@ brew install imagemagick # Install imagemagic (currently required for subtitles)
 ## Usage
 
 ```sh
-./scripts/processVideo -d path/to/videos -o path/to/gif/output
+./scripts/processVideo.js -d path/to/videos -o path/to/gif/output
 ```
 
 ## CLI Flags
