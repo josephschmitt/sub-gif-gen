@@ -14,7 +14,7 @@ import convertToGif from './convertToGif.js';
 
 const FILTERS = 'fps=15,scale=320:-1:flags=lanczos';
 
-export default async function processVideo(input, output) {
+export default async function processVideo(input, output, {skipExisting}) {
   const dirname = path.dirname(input);
   const srt = path.basename(input, '.mkv') + '.srt';
   const subs = parser.fromSrt(await fs.readFile(path.join(dirname, srt), 'utf-8'));
@@ -33,10 +33,14 @@ export default async function processVideo(input, output) {
       const gifFilename = path.basename(input, '.mkv') + `-${startTimeMs}.gif`;
       const resolvedOutput = path.resolve(process.cwd(), output);
       const outputFile = path.join(resolvedOutput, gifFilename);
-
-      const gifOutput = await convertToGif(input, outputFile, startTime, duration);
       const annotatedGifOutput = path.join(resolvedOutput, 'annotated', gifFilename);
 
+      if (skipExisting && await (fs.pathExists(outputFile)) &&
+          await (fs.pathExists(annotatedGifOutput))) {
+        continue;
+      }
+
+      const gifOutput = await convertToGif(input, outputFile, startTime, duration);
       await applySubtitles(gifOutput, annotatedGifOutput, `${text}`);
     } catch (e) {
       console.error(e);
@@ -47,11 +51,12 @@ export default async function processVideo(input, output) {
 
 // Called as CLI
 if (require && require.main === module) {
-  const {dir, output} = minimist(process.argv.slice(2), {
-    string: ['dir', 'output'],
+  const {dir, output, skipExisting} = minimist(process.argv.slice(2), {
+    string: ['dir', 'output', 'skipExisting'],
     alias: {
       dir: 'd',
       output: 'o',
+      skipExisting: 's',
     },
     unknown: false,
   });
@@ -60,7 +65,7 @@ if (require && require.main === module) {
     videos = videos.map(({path}) => path).filter((vid) => /\.mkv$/.test(vid))
 
     for (const vid of videos) {
-      await processVideo(path.resolve(process.cwd(), vid), output);
+      await processVideo(path.resolve(process.cwd(), vid), output, {skipExisting});
     }
   });
 }
