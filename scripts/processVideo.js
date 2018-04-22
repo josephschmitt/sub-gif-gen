@@ -14,7 +14,7 @@ import convertToGif from './convertToGif.js';
 
 const FILTERS = 'fps=15,scale=320:-1:flags=lanczos';
 
-export default async function processVideo(input, output, {skipExisting}) {
+export default async function processVideo(input, output, {skipExisting, offset}) {
   const dirname = path.dirname(input);
   const srt = path.basename(input, '.mkv') + '.srt';
   const subs = parser.fromSrt(await fs.readFile(path.join(dirname, srt), 'utf-8'));
@@ -22,41 +22,36 @@ export default async function processVideo(input, output, {skipExisting}) {
   await fs.ensureDir(output);
 
   for (let {startTime, endTime, text} of subs) {
-    startTime = startTime.replace(',', '.');
-    endTime = endTime.replace(',', '.');
+    let startTimeMs = convertTimeToTimestamp(startTime.replace(',', '.'));
+    let durationMs = convertTimeToTimestamp(endTime.replace(',', '.')) - startTimeMs;
 
-    const timestampMs = convertTimeToTimestamp(endTime) - convertTimeToTimestamp(startTime);
-    const duration = convertTimestampToTime(timestampMs);
-    const startTimeMs = convertTimeToTimestamp(startTime);
+    const gifFilename = path.basename(input, '.mkv') + `-${startTimeMs}.gif`;
+    const resolvedOutput = path.resolve(process.cwd(), output);
+    const outputFile = path.join(resolvedOutput, 'gif', gifFilename);
+    const annotatedGifOutput = path.join(resolvedOutput, 'annotated', gifFilename);
 
-    try {
-      const gifFilename = path.basename(input, '.mkv') + `-${startTimeMs}.gif`;
-      const resolvedOutput = path.resolve(process.cwd(), output);
-      const outputFile = path.join(resolvedOutput, gifFilename);
-      const annotatedGifOutput = path.join(resolvedOutput, 'annotated', gifFilename);
-
-      if (skipExisting && await (fs.pathExists(outputFile)) &&
-          await (fs.pathExists(annotatedGifOutput))) {
-        continue;
-      }
-
-      const gifOutput = await convertToGif(input, outputFile, startTime, duration);
-      await applySubtitles(gifOutput, annotatedGifOutput, `${text}`);
-    } catch (e) {
-      console.error(e);
-      process.exit(1);
+    if (skipExisting && await (fs.pathExists(outputFile)) &&
+        await (fs.pathExists(annotatedGifOutput))) {
+      continue;
     }
+
+    const seekTo = Math.max(0, startTimeMs / 1000 - (offset || 0));
+    const duration = durationMs / 1000 + (offset || 0) * 2;
+
+    const gifOutput = await convertToGif(input, outputFile, seekTo, duration);
+    await applySubtitles(gifOutput, annotatedGifOutput, `${text}`);
   }
 }
 
 // Called as CLI
 if (require && require.main === module) {
-  const {dir, output, skipExisting} = minimist(process.argv.slice(2), {
-    string: ['dir', 'output', 'skipExisting'],
+  const {dir, output, skipExisting, offset} = minimist(process.argv.slice(2), {
+    string: ['dir', 'output', 'skipExisting', 'offset'],
     alias: {
       dir: 'd',
       output: 'o',
       skipExisting: 's',
+      offset: 'to',
     },
     unknown: false,
   });
@@ -64,8 +59,13 @@ if (require && require.main === module) {
   klaw(dir).then(async (videos) => {
     videos = videos.map(({path}) => path).filter((vid) => /\.mkv$/.test(vid))
 
-    for (const vid of videos) {
-      await processVideo(path.resolve(process.cwd(), vid), output, {skipExisting});
+    try {
+      for (const vid of videos) {
+        await processVideo(path.resolve(process.cwd(), vid), output, {skipExisting, offset});
+      }
+    } catch (e) {
+      console.error(e);
+      process.exit(1);
     }
   });
 }
