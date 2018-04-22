@@ -1,11 +1,12 @@
 #!/usr/bin/env node -r esm
 
+import chalk from 'chalk';
 import fs from 'fs-extra';
 import path from 'path';
 import minimist from 'minimist';
 
 import ffmpeg from '../lib/ffmpeg.js';
-import {tmpl, cleanText} from '../lib/utils.js';
+import {tmpl, cleanText, isDebugging} from '../lib/utils.js';
 
 const FILTER = 'fps=10,scale=320:-1:flags=lanczos';
 const FILTER_DRAWTEXT = tmpl`drawtext='text=${0}:fontsize=${1}:fontcolor=${2}:borderw=${3}:bordercolor=${4}:fix_bounds=true:x=(w-tw)/2:y=h-th-10-(${5}*line_h)'`;
@@ -76,7 +77,7 @@ if (require && require.main === module) {
   const outputFile = path.join(resolvedOutput, path.basename(input, '.mkv') + '.gif');
 
   convertToGif(input, outputFile, starttime, duration, text).catch((e) => {
-    console.error(e);
+    console.error(chalk.red(e));
     process.exit(1);
   });
 }

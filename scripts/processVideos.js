@@ -1,18 +1,18 @@
 #!/usr/bin/env node -r esm
 
+import chalk from 'chalk';
 import fs from 'fs-extra';
 import klaw from 'klaw-promise';
 import minimist from 'minimist';
 import path from 'path';
 import parser from 'subtitles-parser';
 
-import {convertTimeToTimestamp, convertTimestampToTime} from '../lib/converttime.js';
+import {convertTimeToTimestamp} from '../lib/converttime.js';
 
 import convertToGif from './convertToGif.js';
 
-const FILTERS = 'fps=15,scale=320:-1:flags=lanczos';
-const SUPPORTED_MOVIES = ['.mkv'];
-const SUPPORTED_SUBS = ['.srt'];
+const SUPPORTED_MOVIES = ['mkv'];
+const SUPPORTED_SUBS = ['srt'];
 
 /**
  * Converts a single video into multiple animated gifs, each gif mapping to a section of the video's
@@ -29,6 +29,8 @@ export default async function processVideo(input, output, {skipExisting, offset}
   const basename = path.basename(input, '.mkv');
   const srt = basename + '.srt';
   const subs = parser.fromSrt(await fs.readFile(path.join(dirname, srt), 'utf-8'));
+
+  console.info(chalk.green('Processing'), path.basename(input) + chalk.gray('...'));
 
   for (let {startTime, endTime, text} of subs) {
     let startTimeMs = convertTimeToTimestamp(startTime.replace(',', '.'));
@@ -48,6 +50,13 @@ export default async function processVideo(input, output, {skipExisting, offset}
     const duration = durationMs / 1000 + (offset || 0) * 2;
 
     const gifOutput = await convertToGif(input, outputFile, seekTo, duration, text);
+    const size = (await fs.stat(gifOutput)).size / 1000000;
+
+    const startTimeFmt = startTime.replace(',', '.').split(':').slice(1).join(':');
+    const endTimeFmt = endTime.replace(',', '.').split(':').slice(1).join(':');
+
+    console.info(`  ${chalk.cyan(startTimeFmt)} - ${chalk.cyan(endTimeFmt)}:`,
+        text.replace(/\n/g, ' '), chalk.gray(`[${size.toFixed(2)}MB]`));
   }
 }
 
@@ -73,7 +82,7 @@ if (require && require.main === module) {
     videos = videos.map(({path}) => path).filter((vid) => /\.mkv$/.test(vid))
 
     try {
-      for (const vid of videos) {
+      for (const {path: vid} of videos) {
         await processVideo(path.resolve(process.cwd(), vid), output, {skipExisting, offset});
       }
     } catch (e) {
