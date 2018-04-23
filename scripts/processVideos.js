@@ -34,7 +34,9 @@ export default async function processVideo(input, output,
 
   console.info(chalk.green('Processing'), path.basename(input) + chalk.gray('...'));
 
-  for (let {startTime, endTime, text} of subs) {
+  for (const sub of subs) {
+    let {startTime, endTime, text} = sub;
+
     let startTimeMs = convertTimeToTimestamp(startTime.replace(',', '.'));
     let durationMs = convertTimeToTimestamp(endTime.replace(',', '.')) - startTimeMs;
 
@@ -52,15 +54,19 @@ export default async function processVideo(input, output,
     const duration = durationMs / 1000 + (offset || 0) * 2;
 
     const gifOutput = await convertToGif(input, outputFile, seekTo, duration, text);
-    const size = (await fs.stat(gifOutput)).size / 1000000;
+    sub.id = basename + '-' + startTimeMs;
+    sub.name = basename;
 
     // Format times by removing commas and re-moving leading hour mark until necessary
     const startTimeFmt = startTime.replace(',', '.').replace('00:', '');
     const endTimeFmt = endTime.replace(',', '.').replace('00:', '');
+    const size = (await fs.stat(gifOutput)).size / 1000000;
 
     console.info(`  ${chalk.cyan(startTimeFmt) + chalk.gray('-') + chalk.cyan(endTimeFmt)}:`,
         text.replace(/\n/g, ' '), chalk.gray(`[${size.toFixed(2)}MB]`));
   }
+
+  await fs.outputJson(path.resolve(process.cwd(), output, basename + '.index.json'), subs);
 
   console.info('Finished generating ' + chalk.green(subs.length) + ' gifs in ' +
       moment().from(t1, true) + '\n');
