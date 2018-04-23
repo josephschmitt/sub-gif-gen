@@ -9,7 +9,7 @@ import ffmpeg from '../lib/ffmpeg.js';
 import {tmpl, cleanText, isDebugging} from '../lib/utils.js';
 
 const FILTER = 'fps=10,scale=320:-1:flags=lanczos';
-const FILTER_DRAWTEXT = tmpl`drawtext='text=${0}:fontsize=${1}:fontcolor=${2}:borderw=${3}:bordercolor=${4}:fix_bounds=true:x=(w-tw)/2:y=h-th-10-${5}'`;
+const FILTER_DRAWTEXT = tmpl`drawtext='text=${0}:fontsize=${1}:fontcolor=${2}:borderw=${3}:bordercolor=${4}:fix_bounds=true:x=(w-tw)/2:y=h-th-10-((ascent+descent+${5})*${6})'`;
 const FILTER_SPLIT = '[x]split[x1][x2]';
 const FILTER_PALETTE = '[x1]palettegen[p];[x2][p]paletteuse';
 
@@ -49,7 +49,7 @@ export default async function convertToGif(input, output, startTime, duration, t
  */
 function getCenteredMultilineDrawtext(text) {
   return cleanText(text).split(/\n/g).reverse().map((txt, i) => {
-    return FILTER_DRAWTEXT(txt, 14, 'white', 2, 'black@0.6', (i * 16).toString());
+    return FILTER_DRAWTEXT(txt, 14, 'white', 2, 'black@0.6', 8, i.toString());
   }).join(',') ;
 }
 
