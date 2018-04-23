@@ -69,7 +69,8 @@ Or run the script directly in your shell:
   the time of the clip by adding some time before and after the timecode from the subtitle file.
 - `-x`, `--extensions`: Allowed extensions for the input file. Will use these to filter the input
   directory for videos. Defaults to `.mkv,.mp4`.
-- `-l`, `--lang`: Language code if your srt subtitle files are named `{episode-name}.{lang}.srt`. Defaults to `'en'`.
+- `-l`, `--lang`: Language code if your srt subtitle files are named `{episode-name}.{lang}.srt`.
+  Defaults to `'en'`.
 
 Use the `--` flag to denote the end of the options and then pass the directory to output your gifs.
 The gifs will be output to a directory of the same name as the input file. The gifs are named the
@@ -87,3 +88,23 @@ If something goes wrong, you can set a `LOGLEVEL` flag to see more verbose outpu
 ```sh
 env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -- path/to/gif/output
 ```
+
+## Index Generation
+
+In addition to the gifs, the script produces a JSON file for each video of structured information
+about the subtitles and what gifs they belong to. You can use this information along with the
+`scripts/createIndex.js` script to produce a single structured data file of all your gifs and their
+subs. This could be used to generate a data structure compatible with cloud-based search indexers,
+such as AWS's CloudSearch.
+
+The indexer takes in an [art](https://github.com/aui/art-template) template  and a glob of JSON
+files to produce the index from. The glob should point to the `.json` index files produced by the
+`scripts/processVideos.js` script, and you should use this data to prdouce a file that can be
+ingested by your cloud-based search indexer. You can find an example template compatible with AWS's
+CloudSearch in the `templates/` directory.
+
+```sh
+./scripts/createIndex.js --template templates/aws.cloudsearch.art --indexes **.json -- index.json
+```
+
+You'd then be able to upload `index.json` to AWS's CloudSearch to create a searchable gif index.
