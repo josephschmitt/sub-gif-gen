@@ -39,12 +39,12 @@ Installed as an npm dependency and running from a package.json script
 
 To provide a custom location for your `ffmpeg` binary, set the `FFMPEG_BIN` environment flag:
 ```sh
-env FFMPEG_BIN='path/to/ffmpeg' ./scripts/processVideos.js -d path/to/videos -o path/to/gif/output
+env FFMPEG_BIN='path/to/ffmpeg' ./scripts/processVideos.js -d path/to/videos -- path/to/gif/output
 ```
 
 If something goes wrong, you can set a `LOGLEVEL` flag to see more verbose output:
 ```sh
-env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -o path/to/gif/output
+env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -- path/to/gif/output
 ```
 
 ## CLI Flags
