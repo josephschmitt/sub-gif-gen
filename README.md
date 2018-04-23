@@ -4,8 +4,6 @@ NodeJS command-line utility to generate generate subtitled animated gif scenes f
 videos. This is a fun and useful tool for creating looping gif scenes from your favorite, most
 quotable shows and movies!
 
-![This is ridiculous](http://cdn.joe.sh/projects/sub-gif-gen/stanley.gif)
-
 ## Installation
 
 You have two options on how to install these scripts:
