@@ -1,8 +1,8 @@
 # Subtitle Gif Generator
 
-NodeJS command-line utility to generate animated gif sequences of videos based with subtitles.
-The gifs include the subtitle baked into the image and are on a loop. This is useful for creating
-looping gifs of your favorite scenes from your favorite, most quotable shows and movies!
+NodeJS command-line utility to generate generate subtitled animated gif scenes from your favorite
+videos. This is a fun and useful tool for creating looping gif scenes from your favorite, most
+quotable shows and movies!
 
 ![This is ridiculous](http://cdn.joe.sh/projects/sub-gif-gen/stanley.gif)
 
