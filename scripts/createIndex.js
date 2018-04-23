@@ -6,8 +6,11 @@ import fs from 'fs-extra';
 import {expandPaths} from 'glob-extra';
 import minimist from 'minimist';
 import path from 'path';
+import UrlSafeString from 'url-safe-string';
 
 import {cleanText} from '../lib/utils.js';
+
+const {generate} = new UrlSafeString();
 
 /**
  * Creates a single JSON file used to populate a search index based on a template file depending on
@@ -29,6 +32,7 @@ export default async function createIndex(indexes, tmpl, output) {
   await fs.outputFile(output, template(path.resolve(process.cwd(), tmpl), {
     subs: merged.reduce((json, val) => {
       return json.concat(Object.assign(val, {
+        id: generate(val.id),
         text: cleanText(val.text).replace(/\n/g, '\\n'),
       }));
     }, []),

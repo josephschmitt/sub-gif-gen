@@ -23,6 +23,7 @@
     "minimist": "^1.2.0",
     "moment": "^2.22.1",
     "strip": "^3.0.0",
-    "subtitles-parser": "0.0.2"
+    "subtitles-parser": "0.0.2",
+    "url-safe-string": "^1.1.0"
   }
 }
