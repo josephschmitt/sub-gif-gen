@@ -22,10 +22,10 @@ You have two options on how to install these scripts:
    npm install @joe-sh/sub-gif-gen --save-dev
    ```
 
-Regardless of how you install the project, you'll have to make sure to use a version of the ffmpeg
+Regardless of how you install the project, you'll have to make sure to use a version of the `ffmpeg`
 binaries with `freetype` enabled so that we can render the subtitles without the need for any
-other dependencies. On a Mac, you can do this by building ffmpeg from source with this option using
-[homebrew](https://brew.sh):
+other dependencies. On a Mac, you can do this by building `ffmpeg` from source with this option
+using [`homebrew`](https://brew.sh):
 
 ```sh
 brew install ffmpeg --with-libass --with-fontconfig --with-freetype
@@ -43,7 +43,7 @@ Running from the cloned project:
 ./scripts/processVideos.js -d path/to/videos -- path/to/gif/output
 ```
 
-If you installed as an npm dependency, you can either run in a package.json script:
+If you installed as an `npm` dependency, you can either run in a `package.json` script:
 ```json
 {
   "dependencies": {
@@ -67,19 +67,19 @@ Or run the script directly in your shell:
   but with the filename set to `.srt`.
 
 ### Optional
-- `-s`, `--skipExisting`: Will skip processing if it finds a gif or annotated gif file already
-  exists in the output directory
-- `-o`, `--offset`: Amount of time (in seconds) to offset the gif. By defaul this is zero, which
+- `-s`, `--skipExisting`: Will skip processing if it finds a gif file already exists in the output
+  directory.
+- `-o`, `--offset`: Amount of time (in seconds) to offset the gif. By default this is zero, which
   means the gif is cropped to the exact timecode of the subtitle. You can use this value to extend
   the time of the clip by adding some time before and after the timecode from the subtitle file.
 - `-x`, `--extensions`: Allowed extensions for the input file. Will use these to filter the input
   directory for videos. Defaults to `.mkv,.mp4`.
-- `-l`, `--lang`: Language code if your srt subtitle files are named `{episode-name}.{lang}.srt`.
+- `-l`, `--lang`: Language code if your `srt` subtitle files are named `{filename}.{lang}.srt`.
   Defaults to `'en'`.
 
 Use the `--` flag to denote the end of the options and then pass the directory to output your gifs.
 The gifs will be output to a directory of the same name as the input file. The gifs are named the
-same as the input source file, plus the start-time in miliseconds of the clip.
+same as the input source file, plus the start-time in milliseconds of the clip.
 
 ## Environment Flags
 
@@ -100,11 +100,11 @@ In addition to the gifs, the script produces a JSON file for each video of struc
 about the subtitles and what gifs they belong to. You can use this information along with the
 `scripts/createIndex.js` script to produce a single structured data file of all your gifs and their
 subs. This could be used to generate a data structure compatible with cloud-based search indexers,
-such as AWS's CloudSearch.
+such as [AWS's CloudSearch](https://aws.amazon.com/cloudsearch/).
 
 The indexer takes in an [art](https://github.com/aui/art-template) template  and a glob of JSON
 files to produce the index from. The glob should point to the `.json` index files produced by the
-`scripts/processVideos.js` script, and you should use this data to prdouce a file that can be
+`scripts/processVideos.js` script, and you should use this data to produce a file that can be
 ingested by your cloud-based search indexer. You can find an example template compatible with AWS's
 CloudSearch in the `templates/` directory.
 
