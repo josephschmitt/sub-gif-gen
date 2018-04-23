@@ -9,6 +9,7 @@ import path from 'path';
 import parser from 'subtitles-parser';
 
 import {convertTimeToTimestamp} from '../lib/converttime.js';
+import {cleanText} from '../lib/utils.js';
 
 import convertToGif from './convertToGif.js';
 
@@ -69,7 +70,7 @@ export default async function processVideo(input, output,
     const size = (await fs.stat(gifOutput)).size / 1000000;
 
     console.info(`  ${chalk.cyan(startTimeFmt) + chalk.gray('-') + chalk.cyan(endTimeFmt)}:`,
-        text.replace(/\n/g, ' '), chalk.gray(`[${size.toFixed(2)}MB]`));
+        cleanText(text).replace(/\n/g, ' '), chalk.gray(`[${size.toFixed(2)}MB]`));
   }
 
   await fs.outputJson(path.resolve(process.cwd(), output, basename + '.index.json'), subs);
