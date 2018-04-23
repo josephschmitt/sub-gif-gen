@@ -62,6 +62,7 @@ env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -o path/to/gif
   the time of the clip by adding some time before and after the timecode from the subtitle file.
 - `-x`, `--extensions`: Allowed extensions for the input file. Will use these to filter the input
   directory for videos. Defaults to `.mkv,.mp4`.
+- `-l`, `--lang`: Language code if your srt subtitle files are named `{episode-name}.{lang}.srt`. Defaults to `'en'`.
 
 Use the `--` flag to denote the end of the options and then pass the directory to output your gifs.
 The gifs will be output to a directory of the same name as the input file. The gifs are named the

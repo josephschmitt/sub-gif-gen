@@ -24,19 +24,19 @@ import convertToGif from './convertToGif.js';
  * @param {Array<String>} allowedExtensions -- Array of extensions allowed for input videos
  */
 export default async function processVideo(input, output,
-    {skipExisting, offset, allowedExtensions}) {
+    {skipExisting, offset, allowedExtensions, lang}) {
   const t1 = new Date();
 
   const dirname = path.dirname(input);
   const basename = allowedExtensions.reduce((val, cur) => path.basename(val, cur), input);
   const srtFile = path.join(dirname, basename + '.srt');
 
-  if (!await fs.pathExists(srtFile)) {
-    console.warn('Warning: ' + chalk.yellow(srtFile) + ' not found. Skipping...');
+  const srtContents = await resolveSrtFile(srtFile, lang);
+  if (!srtContents) {
     return;
   }
 
-  const subs = parser.fromSrt(await fs.readFile(srtFile, 'utf-8'));
+  const subs = parser.fromSrt(srtContents);
 
   console.info(chalk.green('Processing'), path.basename(input) + chalk.gray('...'));
 
@@ -79,6 +79,28 @@ export default async function processVideo(input, output,
 }
 
 /**
+ * Takes in a path to an srt and returns its contents as a string. If the file can't be read, it'll
+ * return null and output a warning.
+ *
+ * @param {String} srtFile -- Path to srt file
+ * @param {String} [lang='en'] -- Optional language code. Default to 'en'
+ */
+async function resolveSrtFile(srtFile, lang = 'en') {
+  try {
+    return await fs.readFile(srtFile, 'utf-8');
+  } catch (e) {
+    try {
+      const dirname = path.dirname(srtFile);
+      const basename = path.basename(srtFile, '.srt');
+
+      return await fs.readFile(path.join(dirname, basename + `.${lang}.srt`), 'utf-8');
+    } catch (e) {
+      console.warn('Warning: ' + chalk.yellow(srtFile) + ' not found. Skipping...');
+    }
+  }
+}
+
+/**
  * Called as CLI
  *
  * Usage:
@@ -92,16 +114,18 @@ if (require && require.main === module) {
     offset,
     extensions
   } = minimist(process.argv.slice(2), {
-    string: ['dir', 'offset', 'extensions'],
+    string: ['dir', 'offset', 'extensions', 'lang'],
     boolean: ['skipExisting'],
     alias: {
       dir: 'd',
       skipExisting: 's',
       offset: 'o',
       extensions: 'x',
+      lang: 'l',
     },
     'default': {
       extensions: '.mkv,.mp4',
+      lang: 'en',
     },
     unknown: false,
     '--': true,
@@ -117,7 +141,7 @@ if (require && require.main === module) {
 
       for (const {path: vid} of videos) {
         await processVideo(path.resolve(process.cwd(), vid), output,
-          {skipExisting, offset, allowedExtensions});
+          {skipExisting, offset, allowedExtensions, lang});
       }
 
       console.info('Finished processing ' + chalk.green(videos.length) + ' videos in ' +
