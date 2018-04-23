@@ -29,8 +29,14 @@ export default async function processVideo(input, output,
 
   const dirname = path.dirname(input);
   const basename = allowedExtensions.reduce((val, cur) => path.basename(val, cur), input);
-  const srt = basename + '.srt';
-  const subs = parser.fromSrt(await fs.readFile(path.join(dirname, srt), 'utf-8'));
+  const srtFile = path.join(dirname, basename + '.srt');
+
+  if (!await fs.pathExists(srtFile)) {
+    console.warn('Warning: ' + chalk.yellow(srtFile) + ' not found. Skipping...');
+    return;
+  }
+
+  const subs = parser.fromSrt(await fs.readFile(srtFile, 'utf-8'));
 
   console.info(chalk.green('Processing'), path.basename(input) + chalk.gray('...'));
 
@@ -46,7 +52,7 @@ export default async function processVideo(input, output,
 
     await fs.ensureDir(outputDir);
 
-    if (skipExisting && await (fs.pathExists(outputFile))) {
+    if (skipExisting && await fs.pathExists(outputFile)) {
       continue;
     }
 
