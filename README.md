@@ -27,8 +27,14 @@ binaries with `freetype` enabled so that we can render the subtitles without the
 other dependencies. On a Mac, you can do this by building ffmpeg from source with this option using
 [homebrew](https://brew.sh):
 
+Using this repo's `Brewfile`:
 ```sh
 brew bundle
+```
+
+Or manually:
+```sh
+brew install ffmpeg --with-libass --with-fontconfig --with-freetype
 ```
 
 ## Usage
