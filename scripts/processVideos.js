@@ -112,7 +112,8 @@ if (require && require.main === module) {
     '--': [output],
     skipExisting,
     offset,
-    extensions
+    extensions,
+    lang
   } = minimist(process.argv.slice(2), {
     string: ['dir', 'offset', 'extensions', 'lang'],
     boolean: ['skipExisting'],
