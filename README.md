@@ -23,12 +23,12 @@ You have two options on how to install these scripts:
    ```
 
 Regardless of how you install the project, you'll have to make sure to use a version of the ffmpeg
-binaries with the `freetype` enabled so that we can render the subtitles without the need for any
+binaries with `freetype` enabled so that we can render the subtitles without the need for any
 other dependencies. On a Mac, you can do this by building ffmpeg from source with this option using
 [homebrew](https://brew.sh):
 
 ```sh
-brew install ffmpeg --with-libass --with-fontconfig --with-freetype
+brew bundle
 ```
 
 ## Usage
