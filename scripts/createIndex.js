@@ -33,6 +33,7 @@ export default async function createIndex(indexes, tmpl, output) {
     subs: merged.reduce((json, val) => {
       return json.concat(Object.assign(val, {
         id: generate(val.id),
+        fileid: val.id,
         text: cleanText(val.text).replace(/\n/g, '\\n'),
       }));
     }, []),

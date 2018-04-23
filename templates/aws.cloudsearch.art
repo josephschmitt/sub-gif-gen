@@ -6,7 +6,8 @@
       "start_time": "{{$value.startTime}}",
       "end_time": "{{$value.endTime}}",
       "text": "{{$value.text}}"{{if $value.name}},
-      "name": "{{$value.name}}"{{/if}}
+      "name": "{{$value.name}}"{{/if}}{{if $value.fileid}},
+      "fileid": "{{$value.fileid}}"{{/if}}
     }
   }{{/each}}
 ]
