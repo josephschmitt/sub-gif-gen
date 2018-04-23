@@ -8,22 +8,37 @@ looping gifs of your favorite scenes from your favorite, most quotable shows and
 
 ## Installation
 
-```sh
-npm install # Install NodeJS dependencies
+You have two options on how to install these scripts:
 
-# In order to burn the subtitles into the gif, you'll have to build ffmpeg with freetype enabled.
-# This is so we don't need to install ImageMagick and do another slow processing step
+1. Clone the project and run the scripts directly
+
+   ```sh
+   git clone https://github.com/josephschmitt/sub-gif-gen.git
+   cd sub-gif-gen
+   npm install
+   ```
+2. Install the package into another NodeJS project
+   ```sh
+   npm install @joe-sh/sub-gif-gen --save-dev
+   ```
+
+Regardless of how you install the project, you'll have to make sure to use a version of the ffmpeg
+binaries with the `freetype` enabled so that we can render the subtitles without the need for any
+other dependencies. On a Mac, you can do this by building ffmpeg from source with this option using
+[homebrew](https://brew.sh):
+
+```sh
 brew install ffmpeg --with-libass --with-fontconfig --with-freetype
 ```
 
 ## Usage
 
-Running from the cloned project
+Running from the cloned project:
 ```sh
 ./scripts/processVideos.js -d path/to/videos -- path/to/gif/output
 ```
 
-Installed as an npm dependency and running from a package.json script
+If you installed as an npm dependency, you can either run in a package.json script:
 ```json
 {
   "dependencies": {
@@ -34,17 +49,9 @@ Installed as an npm dependency and running from a package.json script
   }
 }
 ```
-
-## Environment Flags
-
-To provide a custom location for your `ffmpeg` binary, set the `FFMPEG_BIN` environment flag:
+Or run the script directly in your shell:
 ```sh
-env FFMPEG_BIN='path/to/ffmpeg' ./scripts/processVideos.js -d path/to/videos -- path/to/gif/output
-```
-
-If something goes wrong, you can set a `LOGLEVEL` flag to see more verbose output:
-```sh
-env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -- path/to/gif/output
+./node_modues/.bin/.gen-gifs -d path/to/videos -- path/to/gif/output"
 ```
 
 ## CLI Flags
@@ -67,3 +74,16 @@ env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -- path/to/gif
 Use the `--` flag to denote the end of the options and then pass the directory to output your gifs.
 The gifs will be output to a directory of the same name as the input file. The gifs are named the
 same as the input source file, plus the start-time in miliseconds of the clip.
+
+## Environment Flags
+
+To provide a custom location for your `ffmpeg` binary, set the `FFMPEG_BIN` environment flag:
+```sh
+env FFMPEG_BIN='path/to/ffmpeg' ./scripts/processVideos.js -d path/to/videos -- path/to/gif/output
+```
+The default uses the `ffmpeg` exported in your `PATH`.
+
+If something goes wrong, you can set a `LOGLEVEL` flag to see more verbose output:
+```sh
+env LOGLEVEL=verbose ./scripts/processVideos.js -d path/to/videos -- path/to/gif/output
+```
