@@ -1,6 +1,10 @@
 {
   "name": "@joe-sh/sub-gif-gen",
   "version": "0.0.1",
+  "description": "Command-line utility to generate subtitled animated gif scenes from videos",
+  "repository": "git@github.com:josephschmitt/sub-gif-gen.git",
+  "issues": "https://github.com/josephschmitt/sub-gif-gen/issues",
+  "license": "MIT License",
   "engines": {
     "node": "8.11.1"
   },
