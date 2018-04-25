@@ -52,7 +52,7 @@ export default async function processVideo(input, output,
 
     const sanitizedName = sanitize ? safeString(basename) : basename;
     const gifFilename = sanitizedName + `-${startTimeMs}.gif`;
-    const outputDir = path.resolve(process.cwd(), output, sanitizedName);
+    const outputDir = path.resolve(process.cwd(), output, basename);
     const outputFile = path.resolve(outputDir, gifFilename);
 
     sub.id = sanitizedName + '-' + startTimeMs;
