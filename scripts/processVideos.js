@@ -51,6 +51,9 @@ export default async function processVideo(input, output,
     const outputDir = path.resolve(process.cwd(), output, basename);
     const outputFile = path.resolve(outputDir, gifFilename);
 
+    sub.id = basename + '-' + startTimeMs;
+    sub.name = basename;
+
     await fs.ensureDir(outputDir);
 
     if (skipExisting && await fs.pathExists(outputFile)) {
@@ -61,8 +64,6 @@ export default async function processVideo(input, output,
     const duration = durationMs / 1000 + (offset || 0) * 2;
 
     const gifOutput = await convertToGif(input, outputFile, seekTo, duration, text);
-    sub.id = basename + '-' + startTimeMs;
-    sub.name = basename;
 
     // Format times by removing commas and re-moving leading hour mark until necessary
     const startTimeFmt = startTime.replace(',', '.').replace('00:', '');
