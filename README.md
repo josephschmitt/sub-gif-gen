@@ -66,18 +66,22 @@ Or run the script directly in your shell:
   external `.srt` files for subtitles. The `.srt` file must be named the same as the input source,
   but with the filename set to `.srt`.
 
-### Optional
+### Optional Parameters
 - `-l`, `--lang`: Language code if your `srt` subtitle files are named `{filename}.{lang}.srt`.
   Defaults to `'en'`.
 - `-o`, `--offset`: Amount of time (in seconds) to offset the gif. By default this is zero, which
   means the gif is cropped to the exact timecode of the subtitle. You can use this value to extend
   the time of the clip by adding some time before and after the timecode from the subtitle file.
-- `-s`, `--skipExisting`: Will skip processing if it finds a gif file already exists in the output
-  directory.
-- `-sn`, `--sanitize`: Will sanitize file gif filenames from their original names to be url-safe
-  using the [`url-safe-string`](https://www.npmjs.com/package/url-safe-string) package.
 - `-x`, `--extensions`: Allowed extensions for the input file. Will use these to filter the input
   directory for videos. Defaults to `.mkv,.mp4,.mv4,.mov`.
+
+### Optional Flags
+- `-f`, `--flatten`: If set, will output all the output files to the given output directory.
+  Otherwise it will group files into folders by the input filename. Defaults to false.
+- `-k`, `--skipExisting`: If set, will skip processing if it finds a gif file already exists in the
+  output directory.
+- `-s`, `--sanitize`: If set, will sanitize output filenames from their original names to be
+  url-safe using the [`url-safe-string`](https://www.npmjs.com/package/url-safe-string) package.
 
 Use the `--` flag to denote the end of the options and then pass the directory to output your gifs.
 The gifs will be output to a directory of the same name as the input file. The gifs are named the

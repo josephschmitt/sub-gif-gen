@@ -28,7 +28,7 @@ const {generate: safeString} = new UrlSafeString();
  * @param {Array<String>} allowedExtensions -- Array of extensions allowed for input videos
  */
 export default async function processVideo(input, output,
-    {allowedExtensions, lang, offset, sanitize, skipExisting}) {
+    {allowedExtensions, flatten, lang, offset, sanitize, skipExisting}) {
   const t1 = new Date();
 
   const dirname = path.dirname(input);
@@ -52,7 +52,7 @@ export default async function processVideo(input, output,
 
     const sanitizedName = sanitize ? safeString(basename) : basename;
     const gifFilename = sanitizedName + `-${startTimeMs}.gif`;
-    const outputDir = path.resolve(process.cwd(), output, basename);
+    const outputDir = path.resolve(process.cwd(), output, (flatten ? '' : basename));
     const outputFile = path.resolve(outputDir, gifFilename);
 
     sub.id = sanitizedName + '-' + startTimeMs;
@@ -117,25 +117,26 @@ if (require && require.main === module) {
     '--': [output],
     dir,
     extensions,
+    flatten,
     lang,
     offset,
     sanitize,
     skipExisting,
   } = minimist(process.argv.slice(2), {
     string: ['dir', 'offset', 'extensions', 'lang'],
-    boolean: ['sanitize', 'skipExisting'],
+    boolean: ['flatten', 'sanitize', 'skipExisting'],
     alias: {
       dir: 'd',
-      skipExisting: 's',
-      offset: 'o',
       extensions: 'x',
+      flatten: 'f',
       lang: 'l',
-      sanitize: 'sn',
+      offset: 'o',
+      sanitize: 's',
+      skipExisting: 'k',
     },
     'default': {
       extensions: '.mkv,.mp4,.mv4,.mov',
       lang: 'en',
-      sanitize: true,
     },
     unknown: false,
     '--': true,
@@ -151,7 +152,7 @@ if (require && require.main === module) {
 
       for (const {path: vid} of videos) {
         await processVideo(path.resolve(process.cwd(), vid), output,
-          {allowedExtensions, lang, offset, sanitize, skipExisting});
+          {allowedExtensions, flatten, lang, offset, sanitize, skipExisting});
       }
 
       console.info('Finished processing ' + chalk.green(videos.length) + ' videos in ' +
