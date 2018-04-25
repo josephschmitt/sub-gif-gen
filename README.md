@@ -67,15 +67,17 @@ Or run the script directly in your shell:
   but with the filename set to `.srt`.
 
 ### Optional
-- `-s`, `--skipExisting`: Will skip processing if it finds a gif file already exists in the output
-  directory.
+- `-l`, `--lang`: Language code if your `srt` subtitle files are named `{filename}.{lang}.srt`.
+  Defaults to `'en'`.
 - `-o`, `--offset`: Amount of time (in seconds) to offset the gif. By default this is zero, which
   means the gif is cropped to the exact timecode of the subtitle. You can use this value to extend
   the time of the clip by adding some time before and after the timecode from the subtitle file.
+- `-s`, `--skipExisting`: Will skip processing if it finds a gif file already exists in the output
+  directory.
+- `-sn`, `--sanitize`: Will sanitize file gif filenames from their original names to be url-safe
+  using the [`url-safe-string`](https://www.npmjs.com/package/url-safe-string) package.
 - `-x`, `--extensions`: Allowed extensions for the input file. Will use these to filter the input
-  directory for videos. Defaults to `.mkv,.mp4`.
-- `-l`, `--lang`: Language code if your `srt` subtitle files are named `{filename}.{lang}.srt`.
-  Defaults to `'en'`.
+  directory for videos. Defaults to `.mkv,.mp4,.mv4,.mov`.
 
 Use the `--` flag to denote the end of the options and then pass the directory to output your gifs.
 The gifs will be output to a directory of the same name as the input file. The gifs are named the

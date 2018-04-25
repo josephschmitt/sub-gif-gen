@@ -7,11 +7,14 @@ import minimist from 'minimist';
 import moment from 'moment';
 import path from 'path';
 import parser from 'subtitles-parser';
+import UrlSafeString from 'url-safe-string';
 
 import {convertTimeToTimestamp} from '../lib/converttime.js';
 import {cleanText} from '../lib/utils.js';
 
 import convertToGif from './convertToGif.js';
+
+const {generate: safeString} = new UrlSafeString();
 
 /**
  * Converts a single video into multiple animated gifs, each gif mapping to a section of the video's
@@ -25,7 +28,7 @@ import convertToGif from './convertToGif.js';
  * @param {Array<String>} allowedExtensions -- Array of extensions allowed for input videos
  */
 export default async function processVideo(input, output,
-    {skipExisting, offset, allowedExtensions, lang}) {
+    {allowedExtensions, lang, offset, sanitize, skipExisting}) {
   const t1 = new Date();
 
   const dirname = path.dirname(input);
@@ -47,12 +50,13 @@ export default async function processVideo(input, output,
     let startTimeMs = convertTimeToTimestamp(startTime.replace(',', '.'));
     let durationMs = convertTimeToTimestamp(endTime.replace(',', '.')) - startTimeMs;
 
-    const gifFilename = basename + `-${startTimeMs}.gif`;
-    const outputDir = path.resolve(process.cwd(), output, basename);
+    const sanitizedName = sanitize ? safeString(basename) : basename;
+    const gifFilename = sanitizedName + `-${startTimeMs}.gif`;
+    const outputDir = path.resolve(process.cwd(), output, sanitizedName);
     const outputFile = path.resolve(outputDir, gifFilename);
 
-    sub.id = basename + '-' + startTimeMs;
-    sub.name = basename;
+    sub.id = sanitizedName + '-' + startTimeMs;
+    sub.name = sanitizedName;
 
     await fs.ensureDir(outputDir);
 
@@ -74,7 +78,7 @@ export default async function processVideo(input, output,
         cleanText(text).replace(/\n/g, ' '), chalk.gray(`[${size.toFixed(2)}MB]`));
   }
 
-  await fs.outputJson(path.resolve(process.cwd(), output, basename + '.index.json'), subs);
+  await fs.outputJson(path.resolve(process.cwd(), output, sanitizedName + '.index.json'), subs);
 
   console.info('Finished generating ' + chalk.green(subs.length) + ' gifs in ' +
       moment().from(t1, true) + '\n');
@@ -110,25 +114,28 @@ async function resolveSrtFile(srtFile, lang = 'en') {
  */
 if (require && require.main === module) {
   const {
-    dir,
     '--': [output],
-    skipExisting,
-    offset,
+    dir,
     extensions,
-    lang
+    lang,
+    offset,
+    sanitize,
+    skipExisting,
   } = minimist(process.argv.slice(2), {
     string: ['dir', 'offset', 'extensions', 'lang'],
-    boolean: ['skipExisting'],
+    boolean: ['sanitize', 'skipExisting'],
     alias: {
       dir: 'd',
       skipExisting: 's',
       offset: 'o',
       extensions: 'x',
       lang: 'l',
+      sanitize: 'sn',
     },
     'default': {
-      extensions: '.mkv,.mp4',
+      extensions: '.mkv,.mp4,.mv4,.mov',
       lang: 'en',
+      sanitize: true,
     },
     unknown: false,
     '--': true,
@@ -144,7 +151,7 @@ if (require && require.main === module) {
 
       for (const {path: vid} of videos) {
         await processVideo(path.resolve(process.cwd(), vid), output,
-          {skipExisting, offset, allowedExtensions, lang});
+          {allowedExtensions, lang, offset, sanitize, skipExisting});
       }
 
       console.info('Finished processing ' + chalk.green(videos.length) + ' videos in ' +
