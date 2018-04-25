@@ -33,6 +33,7 @@ export default async function processVideo(input, output,
 
   const dirname = path.dirname(input);
   const basename = allowedExtensions.reduce((val, cur) => path.basename(val, cur), input);
+  const sanitizedName = sanitize ? safeString(basename) : basename;
   const srtFile = path.join(dirname, basename + '.srt');
 
   const srtContents = await resolveSrtFile(srtFile, lang);
@@ -50,7 +51,6 @@ export default async function processVideo(input, output,
     let startTimeMs = convertTimeToTimestamp(startTime.replace(',', '.'));
     let durationMs = convertTimeToTimestamp(endTime.replace(',', '.')) - startTimeMs;
 
-    const sanitizedName = sanitize ? safeString(basename) : basename;
     const gifFilename = sanitizedName + `-${startTimeMs}.gif`;
     const outputDir = path.resolve(process.cwd(), output, (flatten ? '' : basename));
     const outputFile = path.resolve(outputDir, gifFilename);
