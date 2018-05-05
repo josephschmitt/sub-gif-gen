@@ -16,7 +16,7 @@ const {generate} = new UrlSafeString();
  * Creates a single JSON file used to populate a search index based on a template file depending on
  * what search indexing service you're using.
  *
- * @param {String} indexes -- minimatch-compatible globa of json subtitle structured data to load.
+ * @param {String} indexes -- minimatch-compatible glob of json subtitle structured data to load.
  *     The json should be parsed subtitles as JSON
  * @param {String} tmpl -- Path to art template file to outputting the single searchable index for
  * the gif library
