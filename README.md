@@ -73,7 +73,7 @@ Or run the script directly in your shell:
   means the gif is cropped to the exact timecode of the subtitle. You can use this value to extend
   the time of the clip by adding some time before and after the timecode from the subtitle file.
 - `-x`, `--extensions`: Allowed extensions for the input file. Will use these to filter the input
-  directory for videos. Defaults to `.mkv,.mp4,.mv4,.mov`.
+  directory for videos. Defaults to `.mkv,.mp4,.m4v,.mov`.
 - `-r`, `--formats`: The output formats for the looping clips. Defaults to `gif`. Can supply a
   comma-separated list of formats. Supports `gif,mp4,webm`.
 

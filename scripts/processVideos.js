@@ -154,7 +154,7 @@ if (require && require.main === module) {
       skipExisting: 'k',
     },
     'default': {
-      extensions: '.mkv,.mp4,.mv4,.mov',
+      extensions: '.mkv,.mp4,.m4v,.mov',
       formats: 'gif',
       lang: 'en',
     },
