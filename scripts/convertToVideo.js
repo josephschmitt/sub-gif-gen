@@ -8,9 +8,7 @@ import minimist from 'minimist';
 import ffmpeg from '../lib/ffmpeg.js';
 import {getCenteredMultilineDrawtext} from '../lib/utils.js';
 
-const FILTER = 'fps=15,scale=400:-1:flags=lanczos';
-const FILTER_SPLIT = '[x]split[x1][x2]';
-const FILTER_PALETTE = '[x1]palettegen[p];[x2][p]paletteuse';
+const FILTER = 'scale=-1:226:flags=lanczos';
 
 /**
  * Processes a portion of the input video into an animated looping gif.
@@ -22,7 +20,7 @@ const FILTER_PALETTE = '[x1]palettegen[p];[x2][p]paletteuse';
  * @param {String} text -- Optional subtitle text
  * @returns {Promise<String>} Resolves to a promise with the output path.
  */
-export default async function convertToGif(input, output, startTime, duration, text) {
+export default async function convertToVideo(input, output, startTime, duration, text) {
   await fs.ensureFile(output);
 
   let filter = FILTER;
@@ -34,7 +32,10 @@ export default async function convertToGif(input, output, startTime, duration, t
     ss: startTime,
     t: duration,
   }, {
-    filter_complex: [].concat(filter + ' [x]', FILTER_SPLIT, FILTER_PALETTE).join(';'),
+    an: true,
+    'b:v': 0,
+    crf: 25,
+    filter_complex: filter,
   });
 }
 
@@ -42,7 +43,7 @@ export default async function convertToGif(input, output, startTime, duration, t
  * Called as CLI
  *
  * Usage:
- *   ./convertToGif.js --starttime 10 --duration 5 --text "I like gifs" \
+ *   ./convertToVideo.js --starttime 10 --duration 5 --text "I like gifs" \
  *     --input path/to/input.mkv -- path/to/out.gif
  */
 if (require && require.main === module) {
@@ -61,7 +62,7 @@ if (require && require.main === module) {
   const resolvedOutput = path.resolve(process.cwd(), output);
   const outputFile = path.join(resolvedOutput, path.basename(input, '.mkv') + '.gif');
 
-  convertToGif(input, outputFile, starttime, duration, text).catch((e) => {
+  convertToVideo(input, outputFile, starttime, duration, text).catch((e) => {
     console.error(chalk.red(e));
     process.exit(1);
   });

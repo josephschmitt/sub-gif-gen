@@ -13,8 +13,14 @@ import {convertTimeToTimestamp} from '../lib/converttime.js';
 import {cleanText} from '../lib/utils.js';
 
 import convertToGif from './convertToGif.js';
+import convertToVideo from './convertToVideo.js';
 
 const {generate: safeString} = new UrlSafeString();
+const convertFnMap = {
+  gif: convertToGif,
+  mp4: convertToVideo,
+  webm: convertToVideo,
+};
 
 /**
  * Converts a single video into multiple animated gifs, each gif mapping to a section of the video's
@@ -23,12 +29,9 @@ const {generate: safeString} = new UrlSafeString();
  * @param {String} input -- Path to the input video
  * @param {String} output -- Path to output the gif to
  * @param {Object} options
- * @param {Boolean} options.skipExisting -- If true, will skip a section if the output gif exists
- * @param {Number} options.offset -- Padding to apply to the start/end points of the clip section
- * @param {Array<String>} allowedExtensions -- Array of extensions allowed for input videos
  */
 export default async function processVideo(input, output,
-    {allowedExtensions, flatten, lang, offset, sanitize, skipExisting}) {
+    {allowedExtensions, flatten, formats, lang, offset, sanitize, skipExisting}) {
   const t1 = new Date();
 
   const dirname = path.dirname(input);
@@ -46,37 +49,43 @@ export default async function processVideo(input, output,
 
   console.info(chalk.green('Processing'), path.basename(input) + chalk.gray('...'));
 
-  for (const sub of subs) {
+  subsLoop: for (const sub of subs) {
     let {startTime, endTime, text} = sub;
 
     let startTimeMs = convertTimeToTimestamp(startTime.replace(',', '.'));
     let durationMs = convertTimeToTimestamp(endTime.replace(',', '.')) - startTimeMs;
 
-    const gifFilename = sanitizedName + `-${startTimeMs}.gif`;
     const outputDir = path.resolve(process.cwd(), output, (flatten ? '' : basename));
-    const outputFile = path.resolve(outputDir, gifFilename);
 
     sub.id = sanitizedName + '-' + startTimeMs;
     sub.name = sanitizedName;
 
     await fs.ensureDir(outputDir);
 
-    if (skipExisting && await fs.pathExists(outputFile)) {
-      continue;
-    }
-
     const seekTo = Math.max(0, startTimeMs / 1000 - (offset || 0));
     const duration = durationMs / 1000 + (offset || 0) * 2;
-
-    const gifOutput = await convertToGif(input, outputFile, seekTo, duration, text);
 
     // Format times by removing commas and re-moving leading hour mark until necessary
     const startTimeFmt = startTime.replace(',', '.').replace('00:', '');
     const endTimeFmt = endTime.replace(',', '.').replace('00:', '');
-    const size = (await fs.stat(gifOutput)).size / 1000000;
+
+    const sizes = [];
+    formatsLoop: for (const fmt of formats.split(',')) {
+      const convertFn = convertFnMap[fmt];
+      const outputFile = path.resolve(outputDir, sanitizedName + `-${startTimeMs}.${fmt}`);
+
+      if (skipExisting && await fs.pathExists(outputFile)) {
+        continue subsLoop;
+      }
+
+      if (typeof convertFn === 'function') {
+        const converted = await convertFn(input, outputFile, seekTo, duration, text);
+        sizes.push(`${fmt}: ${((await fs.stat(converted)).size / 1000000).toFixed(2)}MB`);
+      }
+    }
 
     console.info(`  ${chalk.cyan(startTimeFmt) + chalk.gray('-') + chalk.cyan(endTimeFmt)}:`,
-        cleanText(text).replace(/\n/g, ' '), chalk.gray(`[${size.toFixed(2)}MB]`));
+        cleanText(text).replace(/\n/g, ' '), chalk.gray(`[${sizes.join(', ')}]`));
   }
 
   await fs.outputJson(path.resolve(process.cwd(), output, sanitizedName + '.index.json'), subs);
@@ -124,12 +133,13 @@ if (require && require.main === module) {
     dir,
     extensions,
     flatten,
+    formats,
     lang,
     offset,
     sanitize,
     skipExisting,
   } = minimist(process.argv.slice(2), {
-    string: ['dir', 'offset', 'extensions', 'lang'],
+    string: ['dir', 'offset', 'extensions', 'lang', 'formats'],
     boolean: ['flatten', 'sanitize', 'skipExisting'],
     alias: {
       dir: 'd',
@@ -137,11 +147,13 @@ if (require && require.main === module) {
       flatten: 'f',
       lang: 'l',
       offset: 'o',
+      formats: 'r',
       sanitize: 's',
       skipExisting: 'k',
     },
     'default': {
       extensions: '.mkv,.mp4,.mv4,.mov',
+      formats: 'gif',
       lang: 'en',
     },
     unknown: false,
@@ -158,7 +170,7 @@ if (require && require.main === module) {
 
       for (const {path: vid} of videos) {
         await processVideo(path.resolve(process.cwd(), vid), output,
-          {allowedExtensions, flatten, lang, offset, sanitize, skipExisting});
+          {allowedExtensions, flatten, formats, lang, offset, sanitize, skipExisting});
       }
 
       console.info('Finished processing ' + chalk.green(videos.length) + ' videos in ' +

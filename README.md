@@ -76,6 +76,8 @@ Or run the script directly in your shell:
   directory for videos. Defaults to `.mkv,.mp4,.mv4,.mov`.
 
 ### Optional Flags
+- `-r`, `--formats`: The output formats for the looping clips. Defaults to `gif`. Can supply a
+  comma-separated list of formats. Supports `gif,mp4,webm`.
 - `-f`, `--flatten`: If set, will output all the output files to the given output directory.
   Otherwise it will group files into folders by the input filename. Defaults to false.
 - `-k`, `--skipExisting`: If set, will skip processing if it finds a gif file already exists in the
