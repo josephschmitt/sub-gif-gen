@@ -49,7 +49,7 @@ export default async function processVideo(input, output,
 
   console.info(chalk.green('Processing'), path.basename(input) + chalk.gray('...'));
 
-  subsLoop: for (const sub of subs) {
+  for (const sub of subs) {
     let {startTime, endTime, text} = sub;
 
     let startTimeMs = convertTimeToTimestamp(startTime.replace(',', '.'));
@@ -70,12 +70,12 @@ export default async function processVideo(input, output,
     const endTimeFmt = endTime.replace(',', '.').replace('00:', '');
 
     const sizes = [];
-    formatsLoop: for (const fmt of formats.split(',')) {
+    for (const fmt of formats.split(',')) {
       const convertFn = convertFnMap[fmt];
       const outputFile = path.resolve(outputDir, sanitizedName + `-${startTimeMs}.${fmt}`);
 
       if (skipExisting && await fs.pathExists(outputFile)) {
-        continue subsLoop;
+        continue;
       }
 
       if (typeof convertFn === 'function') {
@@ -84,8 +84,10 @@ export default async function processVideo(input, output,
       }
     }
 
-    console.info(`  ${chalk.cyan(startTimeFmt) + chalk.gray('-') + chalk.cyan(endTimeFmt)}:`,
-        cleanText(text).replace(/\n/g, ' '), chalk.gray(`[${sizes.join(', ')}]`));
+    if (sizes.length) {
+      console.info(`  ${chalk.cyan(startTimeFmt) + chalk.gray('-') + chalk.cyan(endTimeFmt)}:`,
+          cleanText(text).replace(/\n/g, ' '), chalk.gray(`[${sizes.join(', ')}]`));
+    }
   }
 
   await fs.outputJson(path.resolve(process.cwd(), output, sanitizedName + '.index.json'), subs);
