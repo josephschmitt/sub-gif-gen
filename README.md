@@ -74,10 +74,10 @@ Or run the script directly in your shell:
   the time of the clip by adding some time before and after the timecode from the subtitle file.
 - `-x`, `--extensions`: Allowed extensions for the input file. Will use these to filter the input
   directory for videos. Defaults to `.mkv,.mp4,.mv4,.mov`.
-
-### Optional Flags
 - `-r`, `--formats`: The output formats for the looping clips. Defaults to `gif`. Can supply a
   comma-separated list of formats. Supports `gif,mp4,webm`.
+
+### Optional Flags
 - `-f`, `--flatten`: If set, will output all the output files to the given output directory.
   Otherwise it will group files into folders by the input filename. Defaults to false.
 - `-k`, `--skipExisting`: If set, will skip processing if it finds a gif file already exists in the
