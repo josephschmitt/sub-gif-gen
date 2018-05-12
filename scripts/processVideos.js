@@ -38,11 +38,14 @@ export default async function processVideo(input, output,
   const basename = allowedExtensions.reduce((val, cur) => path.basename(val, cur), input);
   const sanitizedName = sanitize ? safeString(basename) : basename;
   const srtFile = path.join(dirname, basename + '.srt');
-  const warnings = [];
 
-  const srtContents = await resolveSrtFile(srtFile, lang, warnings);
+  const srtContents = await resolveSrtFile(srtFile, lang);
   if (!srtContents) {
-    return;
+    const warningsFile = path.resolve(process.cwd(), output, '../', 'warnings.txt');
+    await fs.ensureFile(warningsFile);
+
+    const warnings = await fs.readFile(warningsFile, 'utf-8');
+    return await fs.outputFile(warningsFile, warnings + '\nNot Found: ' + srtFile);
   }
 
   const subs = parser.fromSrt(srtContents);
@@ -92,10 +95,6 @@ export default async function processVideo(input, output,
 
   await fs.outputJson(path.resolve(process.cwd(), output, sanitizedName + '.index.json'), subs);
 
-  if (warnings.length) {
-    await fs.outputJson(path.resolve(process.cwd(), output + '.warnings.json'), warnings);
-  }
-
   console.info('Finished generating ' + chalk.green(subs.length) + ' gifs in ' +
       moment().from(t1, true) + '\n');
 }
@@ -107,7 +106,7 @@ export default async function processVideo(input, output,
  * @param {String} srtFile -- Path to srt file
  * @param {String} [lang='en'] -- Optional language code. Default to 'en'
  */
-async function resolveSrtFile(srtFile, lang = 'en', warnings = []) {
+async function resolveSrtFile(srtFile, lang = 'en') {
   try {
     return await fs.readFile(srtFile, 'utf-8');
   } catch (e) {
@@ -117,7 +116,6 @@ async function resolveSrtFile(srtFile, lang = 'en', warnings = []) {
 
       return await fs.readFile(path.join(dirname, basename + `.${lang}.srt`), 'utf-8');
     } catch (e) {
-      warnings.push(srtFile);
       console.warn('Warning: ' + chalk.yellow(srtFile) + ' not found. Skipping...');
     }
   }
