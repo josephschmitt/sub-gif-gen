@@ -68,6 +68,10 @@ export default async function processVideo(input, output,
     const seekTo = Math.max(0, startTimeMs / 1000 - (offset || 0));
     const duration = durationMs / 1000 + (offset || 0) * 2;
 
+    if (!durationMs || !duration) {
+      continue;
+    }
+
     // Format times by removing commas and re-moving leading hour mark until necessary
     const startTimeFmt = startTime.replace(',', '.').replace('00:', '');
     const endTimeFmt = endTime.replace(',', '.').replace('00:', '');
